@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
         stream: true,
         temperature: 0.6,
         top_p: 0.95,
-        max_tokens: 2048,
+        max_tokens: 1024,
       },
       { signal: req.signal },
     );
