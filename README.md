@@ -1,36 +1,49 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ATLAS 2.1
 
-## Getting Started
+A text-only reasoning interface for NVIDIA's **Nemotron 3.5 Lightning 30B A3B**,
+built on Next.js App Router. Two surfaces: a landing page and a streaming chat
+interface. The API key stays server-side.
 
-First, run the development server:
+## Setup
 
 ```bash
+npm install
+cp .env.example .env.local   # then fill in your key
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Environment
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Variable | Purpose |
+| --- | --- |
+| `NVIDIA_API_KEY` | Your NVIDIA API key. Read only in the route handler. |
+| `NVIDIA_BASE_URL` | OpenAI-compatible base URL. NVIDIA's build platform serves this at `https://integrate.api.nvidia.com/v1`. |
+| `NVIDIA_MODEL_NAME` | `nvidia/nemotron-3.5-lightning-30b-a3b` |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Architecture
 
-## Learn More
+- `src/app/api/chat/route.ts` — server-only route handler. Validates the
+  payload, injects the text-only system prompt, and pipes the upstream token
+  stream back as plain UTF-8. Aborts propagate upstream on stop.
+- `src/lib/atlas.ts` — the shared contract: message types, the system prompt,
+  and input limits.
+- `src/components/useAtlasChat.ts` — all chat state: sessions, streaming,
+  `localStorage` persistence.
+- `src/components/motion.ts` — the single motion rhythm (durations, easings,
+  stagger) every animation draws from.
 
-To learn more about Next.js, take a look at the following resources:
+## The text-only constraint
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The system prompt is injected server-side and forbids images, data URIs, ASCII
+art, tables, and layout-implying markdown. The client reinforces it: responses
+render through `AtlasText`, which splits paragraphs and prints plain text. There
+is deliberately no markdown renderer — adding one would invite the formatting
+the prompt rules out.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Design
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Dark, hairline-ruled, one warm signal accent. Tokens live in
+`src/app/globals.css`; components consume them through Tailwind theme names
+(`bg-base`, `border-line`, `text-ink-2`, `text-signal`) rather than raw hex.
+Motion honours `prefers-reduced-motion` — the launch transition, the streaming
+caret, and every entrance collapse to a cut.

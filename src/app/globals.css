@@ -1,26 +1,149 @@
 @import "tailwindcss";
 
+/*
+  ATLAS 2.1 — design tokens.
+  Instrument aesthetic: near-black ground, hairline structure, one warm
+  signal accent. No gradients, no large radii, no decorative colour.
+*/
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: dark;
+
+  /* Surfaces — four steps, deliberately close together. */
+  --atlas-void: #08090a;
+  --atlas-base: #0b0c0d;
+  --atlas-raise: #101112;
+  --atlas-panel: #141516;
+
+  /* Hairlines. 1px only; never 2px, never a shadow instead. */
+  --atlas-line: rgba(255, 255, 255, 0.07);
+  --atlas-line-strong: rgba(255, 255, 255, 0.13);
+
+  /* Text — contrast checked against --atlas-base.
+     primary 15.4:1 · secondary 7.1:1 · muted 4.6:1 (all >= AA). */
+  --atlas-text: #ececed;
+  --atlas-text-2: #9ea3a8;
+  --atlas-text-3: #75797e;
+
+  /* Single accent. Sodium amber — used for state, never for decoration. */
+  --atlas-signal: #e0b184;
+  --atlas-signal-dim: rgba(224, 177, 132, 0.14);
+  --atlas-danger: #e8796b;
+
+  /* Motion tokens — one rhythm for the whole product. */
+  --atlas-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --atlas-fast: 140ms;
+  --atlas-base-dur: 220ms;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-void: var(--atlas-void);
+  --color-base: var(--atlas-base);
+  --color-raise: var(--atlas-raise);
+  --color-panel: var(--atlas-panel);
+  --color-line: var(--atlas-line);
+  --color-line-strong: var(--atlas-line-strong);
+  --color-ink: var(--atlas-text);
+  --color-ink-2: var(--atlas-text-2);
+  --color-ink-3: var(--atlas-text-3);
+  --color-signal: var(--atlas-signal);
+  --color-signal-dim: var(--atlas-signal-dim);
+  --color-danger: var(--atlas-danger);
+
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-mono-ui);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body {
+  height: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--atlas-void);
+  color: var(--atlas-text);
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  font-feature-settings: "cv11", "ss01";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Focus is never removed — only restyled to match the hairline system. */
+:focus-visible {
+  outline: 2px solid var(--atlas-signal);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Tabular figures wherever numbers sit in a column. */
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Eyebrow / meta label. Mono, uppercase, wide tracking. */
+.label {
+  font-family: var(--font-mono-ui), ui-monospace, monospace;
+  font-size: 10px;
+  line-height: 1;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--atlas-text-3);
+}
+
+/* Fine background grid used on the landing page only. */
+.atlas-grid {
+  background-image:
+    linear-gradient(to right, var(--atlas-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--atlas-line) 1px, transparent 1px);
+  background-size: 96px 96px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, #000 20%, transparent 100%);
+}
+
+.scroll-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--atlas-line-strong) transparent;
+}
+.scroll-thin::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.scroll-thin::-webkit-scrollbar-thumb {
+  background: var(--atlas-line-strong);
+  border-radius: 999px;
+}
+.scroll-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+@keyframes atlas-blink {
+  0%,
+  45% {
+    opacity: 1;
+  }
+  50%,
+  95% {
+    opacity: 0.15;
+  }
+}
+
+.caret {
+  display: inline-block;
+  width: 7px;
+  height: 1.05em;
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  background: var(--atlas-signal);
+  animation: atlas-blink 1.1s steps(1, end) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  .caret {
+    opacity: 1;
+  }
 }
